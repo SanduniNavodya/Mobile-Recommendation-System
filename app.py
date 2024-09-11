@@ -58,9 +58,29 @@ def show_recommendations():
             (df['Price'] >= min_price) &
             (df['Price'] <= max_price)
         ]
+
+         # Handle fallback recommendations
+        if filtered_df.empty:
+            filtered_df = df[(df['Brand'] == brand) & 
+                             (df['Storage'] == storage) & 
+                             (df['Price'] >= min_price) & 
+                             (df['Price'] <= max_price)]
+        if filtered_df.empty:
+            filtered_df = df[(df['Brand'] == brand) & 
+                             (df['Price'] >= min_price) & 
+                             (df['Price'] <= max_price)]
+        if filtered_df.empty:
+            filtered_df = df[(df['Price'] >= min_price) & 
+                             (df['Price'] <= max_price)]
         
         # Convert Image URLs to HTML
         filtered_df['Image_HTML'] = filtered_df['Image_URL'].apply(lambda url: f'<img src="{url}" width="100" />')
+
+        # Convert to HTML and remove index by using index=False
+        html = filtered_df.to_html(escape=False, index=False, columns=[
+        'Name', 'Brand', 'System', 'Storage', 'RAM', 'Processor', 'Ratings', 'Price', 'Image_HTML'
+        ])
+        st.markdown(html, unsafe_allow_html=True)
         
         # Drop the column before 'Name' (assuming it's the 'Index' or any other column)
         if 'Index' in filtered_df.columns:
