@@ -1,5 +1,7 @@
-Flask==2.2.5
-pandas==2.0.0
+
+Flask==3.0.3
+pandas==2.2.2
+
 
 streamlit
 numpy
