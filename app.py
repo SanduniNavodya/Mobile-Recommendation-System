@@ -1,4 +1,5 @@
 import streamlit as st
+import openai
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,13 +8,16 @@ import seaborn as sns
 # Load the dataset
 df = pd.read_csv('data/processed-mobile-data.csv')
 
+# Initialize OpenAI API key from Streamlit secrets
+openai.api_key = st.secrets["openai_api_key"]
+
 def main():
     
     st.title('Mobile Recommendation System')
     st.sidebar.title('Navigation')
     
     # Sidebar navigation
-    options = st.sidebar.radio('Select an Option', ['Home', 'Recommendations', 'Visualizations'])
+    options = st.sidebar.radio('Select an Option', ['Home', 'Recommendations', 'Visualizations', 'Chat with AI'])
     
     if options == 'Home':
         show_home()
@@ -21,6 +25,8 @@ def main():
         show_recommendations()
     elif options == 'Visualizations':
         show_visualizations()
+    elif options == 'Chat with AI':
+        chat_with_ai()
 
 def show_home():
     st.header('Welcome to the Mobile Recommendation System')
@@ -156,6 +162,25 @@ def show_visualizations():
     
     st.pyplot(fig)
 
+def chat_with_ai():
+    st.header("Chat with AI - Mobile Recommendations")
+
+    # Input field for user to ask questions
+    user_input = st.text_input("Ask me for mobile recommendations based on your preferences:")
+
+    if st.button("Ask ChatGPT"):
+        if user_input:
+            # Generate a response using OpenAI's ChatGPT model
+            response = openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=f"User asks: {user_input}\nProvide recommendations based on the latest mobile arrivals.",
+                max_tokens=150
+            )
+
+            # Display the chatbot's response
+            st.write(f"ChatGPT: {response.choices[0].text.strip()}")
+        else:
+            st.write("Please ask something about mobile recommendations.")
 
 if __name__ == '__main__':
     main()
