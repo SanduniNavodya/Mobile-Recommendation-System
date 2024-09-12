@@ -9,7 +9,6 @@ seaborn
 requests
 openai
 
-openai
 
-#local packages
--e .
+
+
