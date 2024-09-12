@@ -28,6 +28,25 @@ def show_home():
     st.image('background.jpg', use_column_width=True)
 
 def show_recommendations():
+
+    # Add custom CSS to control image size and row spacing
+    st.markdown("""
+        <style>
+        .mobile-image {
+            max-width: 150px;  /* Set a fixed width for all images */
+            max-height: 200px;  /* Set a fixed height for all images */
+            object-fit: cover;  /* Ensure the image covers the set area */
+            margin-bottom: 10px;  /* Space between the image and text */
+        }
+        .recommendation-item {
+            border: 1px solid #e0e0e0;  /* Add a border to each item */
+            padding: 10px;  /* Add padding inside each item */
+            margin-bottom: 20px;  /* Add space between rows */
+            border-radius: 8px;  /* Make the corners of the border round */
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
     st.header('Mobile Recommendations')
     
     # Filter by Brand
@@ -58,22 +77,52 @@ def show_recommendations():
             (df['Price'] >= min_price) &
             (df['Price'] <= max_price)
         ]
+
+         # Handle fallback recommendations
+        if filtered_df.empty:
+            filtered_df = df[(df['Brand'] == brand) & 
+                             (df['Storage'] == storage) & 
+                             (df['Price'] >= min_price) & 
+                             (df['Price'] <= max_price)]
+        if filtered_df.empty:
+            filtered_df = df[(df['Brand'] == brand) & 
+                             (df['Price'] >= min_price) & 
+                             (df['Price'] <= max_price)]
+        if filtered_df.empty:
+            filtered_df = df[(df['Price'] >= min_price) & 
+                             (df['Price'] <= max_price)]
         
-        # Convert Image URLs to HTML
-        filtered_df['Image_HTML'] = filtered_df['Image_URL'].apply(lambda url: f'<img src="{url}" width="100" />')
-        
-        # Drop the column before 'Name' (assuming it's the 'Index' or any other column)
-        if 'Index' in filtered_df.columns:
-            filtered_df = filtered_df.drop(columns=['Index'])
-        
-        # Display Recommendations as a Table
-        if not filtered_df.empty:
-            st.write('Here are the recommended mobiles:')
-            
-            # Create HTML table with image
-            html = filtered_df.to_html(escape=False, columns=['Name', 'Brand', 'System', 'Storage', 'RAM', 'Processor', 'Ratings', 'Price', 'Image_HTML'])
-            st.markdown(html, unsafe_allow_html=True)
-        else:
+        # Display Recommendations as a Grid
+        num_cols = 4  # Number of columns in the grid
+        num_rows = (len(filtered_df) + num_cols - 1) // num_cols  # Calculate the number of rows
+
+        for row_index in range(num_rows):
+            cols = st.columns(num_cols)  # Create columns for the current row
+            for col_index in range(num_cols):
+                item_index = row_index * num_cols + col_index
+                if item_index < len(filtered_df):
+                    row = filtered_df.iloc[item_index]
+                    with cols[col_index]:
+                        st.markdown(f'<div class="recommendation-item">'
+                                    f'<img src="{row["Image_URL"]}" class="mobile-image">'
+                                    f'<h3>{row["Name"]}</h3>'
+                                    f'<p><strong>Brand:</strong> {row["Brand"]}</p>'
+                                    f'<p><strong>Storage:</strong> {row["Storage"]} GB</p>'
+                                    f'<p><strong>RAM:</strong> {row["RAM"]} GB</p>'
+                                    f'<p><strong>Ratings:</strong> {row["Ratings"]} ⭐</p>'
+                                    f'<p><strong>Price:</strong> {row["Price"]} LKR</p>'
+                                     f'</div>', unsafe_allow_html=True)
+                        
+                        if st.button(f"View More Details {row['Name']}", key=item_index):
+                            st.write(f"**Processor**: {row['Processor']}")
+                            st.write(f"**Operating System**: {row['System']}")
+                            st.write(f"**Brand**: {row['Brand']}")
+                            st.markdown('</div>', unsafe_allow_html=True)
+                              
+                          # End item wrapper
+
+        # If there are no recommendations found
+        if filtered_df.empty:
             st.write('No mobiles found with the selected criteria.')
 
 def show_visualizations():
