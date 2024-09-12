@@ -4,6 +4,10 @@ pandas==2.0.0
 streamlit
 numpy
 scikit-learn
+matplotlib
+seaborn
+requests
+openai
 
 openai
 
