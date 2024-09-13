@@ -15,13 +15,11 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 # Load the dataset
 df = pd.read_csv('data/processed-mobile-data.csv')
 
-<<<<<<<<< Temporary merge branch 1
 # Set up the OpenAI text-generation pipeline with clean_up_tokenization_spaces to avoid the warning
 chat_pipeline = pipeline('text-generation', model='gpt2', clean_up_tokenization_spaces=True)
-=========
+
 # Set up the page configuration
 st.set_page_config(layout="wide")
->>>>>>>>> Temporary merge branch 2
 
 def main():
     
@@ -29,7 +27,6 @@ def main():
     st.sidebar.title('Navigation')
 
     # Sidebar navigation
-<<<<<<<<< Temporary merge branch 1
     options = st.sidebar.radio('Select an Option', ['Home', 'Recommendations', 'Visualizations', 'Chat with AI'])
     
     if options == 'Home':
@@ -213,7 +210,6 @@ def show_visualizations():
     ax.set_title('Brand Distribution', fontsize=16, color='white')
     st.pyplot(fig)
 
-<<<<<<<<< Temporary merge branch 1
 def chat_with_ai():
     st.subheader('Chat with AI')
     
@@ -293,8 +289,6 @@ def recommend_mobile(user_input):
     # Return filtered recommendations
     return filtered_df.to_dict(orient='records')
 
-=========
->>>>>>>>> Temporary merge branch 2
 if __name__ == '__main__':
     main()
 
