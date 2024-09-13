@@ -2,12 +2,26 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import tensorflow as tf
+import warnings
+from transformers import pipeline
+
+# Suppress specific future warnings from the transformers module
+warnings.filterwarnings('ignore', category=FutureWarning, module='transformers')
+
+# Suppress DeprecationWarnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 # Load the dataset
 df = pd.read_csv('data/processed-mobile-data.csv')
 
+
 # Set up the page configuration
 st.set_page_config(layout="wide")
+
+# Set up the OpenAI text-generation pipeline with clean_up_tokenization_spaces to avoid the warning
+chat_pipeline = pipeline('text-generation', model='gpt2', clean_up_tokenization_spaces=True)
+
 
 def main():
     
@@ -15,14 +29,16 @@ def main():
     st.sidebar.title('Navigation')
 
     # Sidebar navigation
-    page = st.sidebar.radio('Select an Option', ['Home', 'Recommendations', 'Visualizations'])
-
-    if page == 'Home':
+    options = st.sidebar.radio('Select an Option', ['Home', 'Recommendations', 'Visualizations', 'Chat with AI'])
+    
+    if options == 'Home':
         show_home()
     elif page == 'Recommendations':
         show_recommendations()
     elif page == 'Visualizations':
         show_visualizations()
+    elif options == 'Chat with AI':
+        chat_with_ai()
 
 def show_home():
     st.header('Welcome to the Mobile Recommendation System')
@@ -196,5 +212,90 @@ def show_visualizations():
     ax.set_title('Brand Distribution', fontsize=16, color='white')
     st.pyplot(fig)
 
+
+def chat_with_ai():
+    st.subheader('Chat with AI')
+    
+    # Input field for user message
+    user_input = st.text_input('You:', '')
+    
+    if st.button('Send'):
+        if user_input:
+            try:
+                # Extract keywords from user input
+                recommendations = recommend_mobile(user_input)
+                
+                # Display recommendations
+                if recommendations:
+                    st.write("**Recommended Mobiles:**")
+                    for rec in recommendations:
+                        st.markdown(f'<div class="recommendation-item">'
+                                    f'<img src="{rec["Image_URL"]}" class="mobile-image">'
+                                    f'<h3>{rec["Name"]}</h3>'
+                                    f'<p><strong>Brand:</strong> {rec["Brand"]}</p>'
+                                    f'<p><strong>Storage:</strong> {rec["Storage"]} GB</p>'
+                                    f'<p><strong>RAM:</strong> {rec["RAM"]} GB</p>'
+                                    f'<p><strong>Ratings:</strong> {rec["Ratings"]} ⭐</p>'
+                                    f'<p><strong>Price:</strong> {rec["Price"]} LKR</p>'
+                                     f'</div>', unsafe_allow_html=True)
+                else:
+                    st.write("No recommendations found based on your input.")
+            
+            except Exception as e:
+                st.error(f"An unexpected error occurred: {e}")
+        else:
+            st.warning("Please enter a message.")
+
+def recommend_mobile(user_input):
+    # Lowercase and split the input into individual words
+    user_input = user_input.lower()
+    keywords = user_input.split()
+    
+    filtered_df = df.copy()
+
+    # Example keyword matching logic
+    # Find brand in the input
+    for brand in df['Brand'].unique():
+        if brand.lower() in user_input:
+            filtered_df = filtered_df[filtered_df['Brand'].str.lower() == brand.lower()]
+            break  # If a brand is found, break the loop
+
+    # Check for Storage
+    if 'storage' in keywords:
+        try:
+            storage_index = keywords.index('storage') + 1
+            storage_value = int(keywords[storage_index])
+            filtered_df = filtered_df[filtered_df['Storage'] == storage_value]
+        except (ValueError, IndexError):
+            pass
+
+    # Check for RAM
+    if 'ram' in keywords:
+        try:
+            ram_index = keywords.index('ram') + 1
+            ram_value = int(keywords[ram_index])
+            filtered_df = filtered_df[filtered_df['RAM'] == ram_value]
+        except (ValueError, IndexError):
+            pass
+
+    # Check for price range
+    if 'price' in keywords:
+        try:
+            price_index = keywords.index('price') + 1
+            price_range = list(map(int, keywords[price_index].split('-')))
+            if len(price_range) == 2:
+                min_price, max_price = price_range
+                filtered_df = filtered_df[(filtered_df['Price'] >= min_price) & (filtered_df['Price'] <= max_price)]
+        except (ValueError, IndexError):
+            pass
+
+    # Return filtered recommendations
+    return filtered_df.to_dict(orient='records')
+
+
 if __name__ == '__main__':
     main()
+
+
+
+

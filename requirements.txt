@@ -1,9 +1,16 @@
-Flask==2.2.3
-pandas==2.0.0
+
+Flask==3.0.3
+pandas==2.2.2
+
 
 streamlit
 numpy
 scikit-learn
+matplotlib
+seaborn
+requests
+transformers
+tf-keras
 
-#local packages
--e .
+
+
