@@ -9,8 +9,8 @@ scikit-learn
 matplotlib
 seaborn
 requests
-openai
-
+transformers
+tf-keras
 
 
 
