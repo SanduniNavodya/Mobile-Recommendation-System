@@ -2,12 +2,18 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import tensorflow as tf
+import warnings
+from transformers import pipeline
+
+# Suppress specific future warnings from the transformers module
+warnings.filterwarnings('ignore', category=FutureWarning, module='transformers')
+
+# Suppress DeprecationWarnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
 
 # Load the dataset
 df = pd.read_csv('data/processed-mobile-data.csv')
-
-# Set up the page configuration
-st.set_page_config(layout="wide")
 
 def main():
     
@@ -15,14 +21,16 @@ def main():
     st.sidebar.title('Navigation')
 
     # Sidebar navigation
-    page = st.sidebar.radio('Select an Option', ['Home', 'Recommendations', 'Visualizations'])
-
-    if page == 'Home':
+    options = st.sidebar.radio('Select an Option', ['Home', 'Recommendations', 'Visualizations'])
+    
+    if options == 'Home':
         show_home()
     elif page == 'Recommendations':
         show_recommendations()
     elif page == 'Visualizations':
         show_visualizations()
+    elif options == 'Chat with AI':
+        chat_with_ai()
 
 def show_home():
     st.header('Welcome to the Mobile Recommendation System')
@@ -196,5 +204,10 @@ def show_visualizations():
     ax.set_title('Brand Distribution', fontsize=16, color='white')
     st.pyplot(fig)
 
+
 if __name__ == '__main__':
     main()
+
+
+
+
