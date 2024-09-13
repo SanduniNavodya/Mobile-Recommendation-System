@@ -34,9 +34,9 @@ def main():
     
     if options == 'Home':
         show_home()
-    elif page == 'Recommendations':
+    elif options == 'Recommendations':
         show_recommendations()
-    elif page == 'Visualizations':
+    elif options == 'Visualizations':
         show_visualizations()
     elif options == 'Chat with AI':
         chat_with_ai()
