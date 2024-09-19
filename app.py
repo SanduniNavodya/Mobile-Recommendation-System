@@ -4,7 +4,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import tensorflow as tf
 import warnings
-from transformers import pipeline
+# from transformers import pipeline
+import random
+from src.remove_ import remove
+import pickle
+import re
 
 # Suppress specific future warnings from the transformers module
 warnings.filterwarnings('ignore', category=FutureWarning, module='transformers')
@@ -12,38 +16,165 @@ warnings.filterwarnings('ignore', category=FutureWarning, module='transformers')
 # Suppress DeprecationWarnings
 warnings.filterwarnings('ignore', category=DeprecationWarning)
 
-# Load the dataset
-df = pd.read_csv('data/processed-mobile-data.csv')
-
-
 # Set up the page configuration
 st.set_page_config(layout="wide")
 
-# Set up the OpenAI text-generation pipeline with clean_up_tokenization_spaces to avoid the warning
-chat_pipeline = pipeline('text-generation', model='gpt2', clean_up_tokenization_spaces=True)
+# Load the dataset
+df = pd.read_csv('data/processed-mobile-data.csv')
 
+df1 = pickle.load(file=open(file=r'src/model/dataframe.pkl', mode='rb'))
+similarity = pickle.load(file=open(file=r'src/model/similarity.pkl', mode='rb'))
+
+remove()
+
+# Set up the OpenAI text-generation pipeline with clean_up_tokenization_spaces to avoid the warning
+# chat_pipeline = pipeline('text-generation', model='gpt2', clean_up_tokenization_spaces=True)
 
 def main():
     
-    st.title('Mobile Recommendation System')
+    # st.title('Mobile Recommendation System')
     st.sidebar.title('Navigation')
 
     # Sidebar navigation
-    options = st.sidebar.radio('Select an Option', ['Home', 'Recommendations', 'Visualizations', 'Chat with AI'])
+    options = st.sidebar.radio('Select an Option', ['Home', 'Recommendations','Recommendations2', 'Visualizations'])
     
     if options == 'Home':
         show_home()
     elif options == 'Recommendations':
         show_recommendations()
+    elif options == 'Recommendations2':
+        show_recommendations2()
     elif options == 'Visualizations':
         show_visualizations()
-    elif options == 'Chat with AI':
-        chat_with_ai()
+
 
 def show_home():
-    st.header('Welcome to the Mobile Recommendation System')
-    st.write('This app helps you find the best mobile phones based on various criteria.')
-    st.image('background.jpg', use_column_width=True)
+    # Setting the page background color
+    st.markdown(
+        """
+        <style>
+        .main {
+            background-color: #000000;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Adding a hero section
+    st.markdown("<h1 style='text-align: center; color: #2E86C1;'>Welcome to Mobile Kings Store</h1>", unsafe_allow_html=True)
+    
+    # Adding a catchy tagline
+    st.markdown("<h3 style='text-align: center; color: #1c6b8c;'>Your one-stop shop for the latest and best smartphones!</h3>", unsafe_allow_html=True)
+    
+    # Displaying a welcoming image
+    st.image('background.jpg', use_column_width=True, caption='Find your perfect mobile phone')
+
+    # Adding a section with a call to action
+    st.markdown("<p style='text-align: center; font-size: 18px;'>Let us guide you through our vast selection of mobile phones tailored to your needs. Whether you’re looking for the latest flagship model or a budget-friendly option, we've got you covered!</p>", unsafe_allow_html=True)
+
+    # Adding a button to explore more
+    if st.button("Start Exploring"):
+        st.write("Navigate to the explore section to browse the latest mobiles!")
+    
+    # Adding some space
+    st.write("\n\n")
+    
+    # Highlighting categories or offers
+    st.subheader("Best Mobile Recommendation App")
+
+# Function to recommend devices based on cosine similarity
+def recommend_different_variety(mobile):
+    mobile_index = df1[df1['name'] == mobile].index[0]
+    similarity_array = similarity[mobile_index]
+    different_variety = random.sample(list(enumerate(similarity_array)),k=10)
+
+    recommended_mobiles_variety = []
+    recommended_mobiles_IMG_variety = []
+    recommended_mobiles_ratings_variety = []
+    recommended_mobiles_price_variety = []
+    for i in different_variety:
+        recommended_mobiles_variety.append(df1['name'].iloc[i[0]])
+        recommended_mobiles_IMG_variety.append(fetch_IMG(i[0]))
+        recommended_mobiles_ratings_variety.append(df1['ratings'].iloc[i[0]])
+        recommended_mobiles_price_variety.append(df1['price'].iloc[i[0]])
+
+    return recommended_mobiles_variety, recommended_mobiles_IMG_variety, recommended_mobiles_ratings_variety, recommended_mobiles_price_variety
+    
+
+def recommend(mobile):
+    # Make sure to use the same DataFrame for filtering and indexing
+    mobile_index = df1[df1['name'] == mobile].index[0]
+    similarity_array = similarity[mobile_index]
+    
+    similar_10_mobiles = sorted(list(enumerate(similarity_array)), reverse=True, key=lambda x: x[1])[1:11]
+
+    recommended_mobiles = []
+    recommended_mobiles_IMG = []
+    recommended_mobiles_ratings = []
+    recommended_mobiles_price = []
+
+    # Iterate and append data using df1 (which has the 'name' column you're filtering on)
+    for i in similar_10_mobiles:
+        recommended_mobiles.append(df1['name'].iloc[i[0]])
+        recommended_mobiles_IMG.append(fetch_IMG(i[0]))
+        recommended_mobiles_ratings.append(df1['ratings'].iloc[i[0]])
+        recommended_mobiles_price.append(df1['price'].iloc[i[0]])
+
+    return recommended_mobiles, recommended_mobiles_IMG, recommended_mobiles_ratings, recommended_mobiles_price
+
+def show_recommendations2():
+    st.title('Mobile Recommender System📲')
+    st.markdown('> ##### ***Guide***: :choose Select a mobile phone of your choice from the available options...')
+    st.markdown('')
+
+    mobiles = df1['name'].values
+    selected_mobile = st.selectbox(label='Select Mobile Name', options=mobiles)
+
+    if st.button('Recommend'):
+        # Ensure the values are properly assigned
+        recommended_mobiles, mobile_IMG, mobiles_ratings, mobiles_price = recommend(selected_mobile)
+
+        # Clean the price by removing all non-numeric characters
+        mobiles_price = [int(re.sub(r'[^\d]', '', str(price))) for price in mobiles_price]
+
+        # Check if recommended_mobiles has enough items to display
+        if len(recommended_mobiles) >= 10:
+            mobile_name = recommended_mobiles
+        else:
+            mobile_name = ["N/A"] * 10  # Default if not enough recommendations
+
+        col1, col2, col3, col4, col5 = st.columns(5)
+        for i in range(5):
+            if i < len(mobile_name):
+                with eval(f'col{i+1}'):
+                    st.markdown(f"<p style='text-align: center;'>{mobile_name[i]}\n"
+                                f"Ratings: {mobiles_ratings[i]}  \n"
+                                f"Price: LKR {mobiles_price[i]}", unsafe_allow_html=True)
+                    st.image(mobile_IMG[i])
+
+        st.markdown('---')
+
+        mobile_name_variety, mobile_IMG_variety, mobiles_ratings_variety, mobiles_price_variety = recommend_different_variety(selected_mobile)
+
+        st.markdown('## Other Variety of mobiles')
+        st.markdown('---')
+
+        # Clean the price by removing all non-numeric characters
+        mobiles_price_variety = [int(re.sub(r'[^\d]', '', str(price))) for price in mobiles_price_variety]
+
+        col11, col12, col13, col14, col15 = st.columns(5)
+        for i in range(10):
+            with eval(f'col{11 + (i // 5)}'):
+                if i < len(mobile_name_variety):
+                    st.markdown(f"<p style='text-align: center;'>{mobile_name_variety[i]}\n"
+                                f"Ratings: {mobiles_ratings_variety[i]}  \n"
+                                f"Price: LKR {mobiles_price_variety[i]}", unsafe_allow_html=True)
+                    st.image(mobile_IMG_variety[i])
+
+def fetch_IMG(mobile_index):
+    # response = requests.get(url=df['imgURL'].iloc[mobile_index])
+    return df1['imgURL'].iloc[mobile_index]  
 
 def show_recommendations():
     # Add custom CSS to control image size and row spacing
@@ -99,9 +230,6 @@ def show_recommendations():
         if filtered_df.empty:
             filtered_df = df[(df['Brand'] == brand) & 
                              (df['Price'] >= min_price) & 
-                             (df['Price'] <= max_price)]
-        if filtered_df.empty:
-            filtered_df = df[(df['Price'] >= min_price) & 
                              (df['Price'] <= max_price)]
 
         # Display Recommendations as a Grid
@@ -211,87 +339,6 @@ def show_visualizations():
     fig.patch.set_alpha(0.0)
     ax.set_title('Brand Distribution', fontsize=16, color='white')
     st.pyplot(fig)
-
-
-def chat_with_ai():
-    st.subheader('Chat with AI')
-    
-    # Input field for user message
-    user_input = st.text_input('You:', '')
-    
-    if st.button('Send'):
-        if user_input:
-            try:
-                # Extract keywords from user input
-                recommendations = recommend_mobile(user_input)
-                
-                # Display recommendations
-                if recommendations:
-                    st.write("**Recommended Mobiles:**")
-                    for rec in recommendations:
-                        st.markdown(f'<div class="recommendation-item">'
-                                    f'<img src="{rec["Image_URL"]}" class="mobile-image">'
-                                    f'<h3>{rec["Name"]}</h3>'
-                                    f'<p><strong>Brand:</strong> {rec["Brand"]}</p>'
-                                    f'<p><strong>Storage:</strong> {rec["Storage"]} GB</p>'
-                                    f'<p><strong>RAM:</strong> {rec["RAM"]} GB</p>'
-                                    f'<p><strong>Ratings:</strong> {rec["Ratings"]} ⭐</p>'
-                                    f'<p><strong>Price:</strong> {rec["Price"]} LKR</p>'
-                                     f'</div>', unsafe_allow_html=True)
-                else:
-                    st.write("No recommendations found based on your input.")
-            
-            except Exception as e:
-                st.error(f"An unexpected error occurred: {e}")
-        else:
-            st.warning("Please enter a message.")
-
-def recommend_mobile(user_input):
-    # Lowercase and split the input into individual words
-    user_input = user_input.lower()
-    keywords = user_input.split()
-    
-    filtered_df = df.copy()
-
-    # Example keyword matching logic
-    # Find brand in the input
-    for brand in df['Brand'].unique():
-        if brand.lower() in user_input:
-            filtered_df = filtered_df[filtered_df['Brand'].str.lower() == brand.lower()]
-            break  # If a brand is found, break the loop
-
-    # Check for Storage
-    if 'storage' in keywords:
-        try:
-            storage_index = keywords.index('storage') + 1
-            storage_value = int(keywords[storage_index])
-            filtered_df = filtered_df[filtered_df['Storage'] == storage_value]
-        except (ValueError, IndexError):
-            pass
-
-    # Check for RAM
-    if 'ram' in keywords:
-        try:
-            ram_index = keywords.index('ram') + 1
-            ram_value = int(keywords[ram_index])
-            filtered_df = filtered_df[filtered_df['RAM'] == ram_value]
-        except (ValueError, IndexError):
-            pass
-
-    # Check for price range
-    if 'price' in keywords:
-        try:
-            price_index = keywords.index('price') + 1
-            price_range = list(map(int, keywords[price_index].split('-')))
-            if len(price_range) == 2:
-                min_price, max_price = price_range
-                filtered_df = filtered_df[(filtered_df['Price'] >= min_price) & (filtered_df['Price'] <= max_price)]
-        except (ValueError, IndexError):
-            pass
-
-    # Return filtered recommendations
-    return filtered_df.to_dict(orient='records')
-
 
 if __name__ == '__main__':
     main()
