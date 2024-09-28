@@ -24,7 +24,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 st.set_page_config(layout="wide")
 
 # Load the dataset
-df = pd.read_csv('data/processed-mobile-data.csv')
+df = pd.read_csv('C:\\Users\\sandu\\OneDrive\\Desktop\\Mobile-Recommendation-System\\data\\mobile_processed_data.csv')
 
 
 df1 = pickle.load(file=open(file=r'src/model/dataframe.pkl', mode='rb'))
@@ -32,41 +32,6 @@ similarity = pickle.load(file=open(file=r'src/model/similarity.pkl', mode='rb'))
 
 remove()
 
-# Set up the OpenAI text-generation pipeline with clean_up_tokenization_spaces to avoid the warning
-# chat_pipeline = pipeline('text-generation', model='gpt2', clean_up_tokenization_spaces=True)
-
-# Define the updated patterns to search in the 'corpus' column
-adjusted_patterns = {
-    'RAM': r'ram\s?(\d+gb)',  # Handles cases like "ram6gb" or "ram 6gb"
-    'Storage': r'storage\s?(\d+gb)',  # Handles "storage128gb" or "storage 128gb"
-    'Battery Capacity': r'capacity\s?(\d+\s?mah)',  # Handles "capacity5000mah" or "capacity 5000 mah"
-    'Display Size': r'display\s?size\s?(\d+\.\d+\s?cm)',  # Handles "display size16.94cm" or "display size 16.94 cm"
-    'Resolution': r'resolution\s?(\d+\s?x\s?\d+\s?pixels)',  # Handles "resolution2400 x 1080 pixels"
-    'Processor Type': r'processor\s?type\s?([a-zA-Z0-9\s]+)',  # Handles "processor typequalcomm"
-    'Processor Speed': r'processor\s?speed\s?(\d+\.\d+)',  # Handles "processor speed2.6"
-    'Camera': r'(\d+mp)',  # Handles cases like "50mp" or "8mp"
-    'Network': r'(5g|4g lte)',  # Handles "5g" or "4g lte"
-    'Weight': r'weight\s?(\d+g)',  # Handles "weight190g" or "weight 190g"
-    'Dimensions': r'dimensions\s?(\d+x\d+x\d+\s?mm)',  # Handles "dimensions160x75x8mm"
-    'Operating System': r'system\s?([a-zA-Z0-9\s]+)',  # Handles "systemandroid 12"
-}
-
-# Function to extract features from the corpus column
-def extract_features(corpus_text, patterns):
-    extracted_features = {}
-    for feature, pattern in patterns.items():
-        match = re.search(pattern, corpus_text.lower())  # Make search case-insensitive
-        if match:
-            extracted_features[feature] = match.group(1).strip()  # Strip extra spaces
-        else:
-            extracted_features[feature] = "Not specified"
-    return extracted_features
-
-# Apply the function to extract features from the 'corpus' column
-df_features = df['corpus'].apply(lambda x: extract_features(x, adjusted_patterns))
-
-# Convert the extracted features into a DataFrame for inspection
-df_extracted_features = pd.DataFrame(df_features.tolist())
 
 
 def main():
@@ -122,49 +87,104 @@ def show_home():
     # Highlighting categories or offers
     st.subheader("Best Mobile Recommendation App")
 
+
+
+
 # Function to recommend devices based on cosine similarity
 def recommend_different_variety(mobile):
+    if mobile not in df1['name'].values:
+        return {
+            "names": ["N/A"] * 10,
+            "images": [""] * 10,
+            "ratings": ["N/A"] * 10,
+            "operating_systems": ["N/A"] * 10,
+            "prices": ["N/A"] * 10,
+            "storage": ["N/A"] * 10,
+            "ram": ["N/A"] * 10,
+            "processors": ["N/A"] * 10,
+            "processor_speeds": ["N/A"] * 10,
+            "battery_capacities": ["N/A"] * 10,
+            "display_sizes": ["N/A"] * 10,
+            "cameras": ["N/A"] * 10,
+            "networks": ["N/A"] * 10
+        }
+
     mobile_index = df1[df1['name'] == mobile].index[0]
     similarity_array = similarity[mobile_index]
-    different_variety = random.sample(list(enumerate(similarity_array)),k=10)
 
+    # Select random indices for recommendations
+    different_variety = random.sample(list(enumerate(similarity_array)), k=10)
+
+    # Initialize lists to hold recommended mobile attributes
     recommended_mobiles_variety = []
     recommended_mobiles_IMG_variety = []
     recommended_mobiles_ratings_variety = []
+    recommended_mobiles_operating_system_variety = []
     recommended_mobiles_price_variety = []
+    recommended_mobiles_storage_variety = []
+    recommended_mobiles_ram_variety = []
+    recommended_mobiles_processor_variety = []
+    recommended_mobiles_processor_speed_variety = []
+    recommended_mobiles_battery_capacity_variety = []
+    recommended_mobiles_display_size_variety = []
+    recommended_mobiles_camera_variety = []
+    recommended_mobiles_network_variety = []
+
     for i in different_variety:
         recommended_mobiles_variety.append(df1['name'].iloc[i[0]])
         recommended_mobiles_IMG_variety.append(fetch_IMG(i[0]))
         recommended_mobiles_ratings_variety.append(df1['ratings'].iloc[i[0]])
+        recommended_mobiles_operating_system_variety.append(df1['operating_system'].iloc[i[0]])
         recommended_mobiles_price_variety.append(df1['price'].iloc[i[0]])
 
-    return recommended_mobiles_variety, recommended_mobiles_IMG_variety, recommended_mobiles_ratings_variety, recommended_mobiles_price_variety
-    
+        # Fetch additional specifications
+        recommended_mobiles_storage_variety.append(df1['storage'].iloc[i[0]])
+        recommended_mobiles_ram_variety.append(df1['ram'].iloc[i[0]])
+        recommended_mobiles_processor_variety.append(df1['processor'].iloc[i[0]])
+        recommended_mobiles_processor_speed_variety.append(df1['processor_speed'].iloc[i[0]])
+        recommended_mobiles_battery_capacity_variety.append(df1['battery_capacity'].iloc[i[0]])
+        recommended_mobiles_display_size_variety.append(df1['display_size'].iloc[i[0]])
+        recommended_mobiles_camera_variety.append(df1['camera'].iloc[i[0]])
+        recommended_mobiles_network_variety.append(df1['network'].iloc[i[0]])
+
+    return {
+        "names": recommended_mobiles_variety,
+        "images": recommended_mobiles_IMG_variety,
+        "ratings": recommended_mobiles_ratings_variety,
+        "operating_systems": recommended_mobiles_operating_system_variety,
+        "prices": recommended_mobiles_price_variety,
+        "storage": recommended_mobiles_storage_variety,
+        "ram": recommended_mobiles_ram_variety,
+        "processors": recommended_mobiles_processor_variety,
+        "processor_speeds": recommended_mobiles_processor_speed_variety,
+        "battery_capacities": recommended_mobiles_battery_capacity_variety,
+        "display_sizes": recommended_mobiles_display_size_variety,
+        "cameras": recommended_mobiles_camera_variety,
+        "networks": recommended_mobiles_network_variety
+    }
 
 def recommend(mobile):
-    # Make sure to use the same DataFrame for filtering and indexing
     mobile_index = df1[df1['name'] == mobile].index[0]
     similarity_array = similarity[mobile_index]
-    
+
     similar_10_mobiles = sorted(list(enumerate(similarity_array)), reverse=True, key=lambda x: x[1])[1:11]
 
     recommended_mobiles = []
     recommended_mobiles_IMG = []
     recommended_mobiles_ratings = []
+    recommended_mobiles_operating_system_variety = []
     recommended_mobiles_price = []
 
-    # Iterate and append data using df1 (which has the 'name' column you're filtering on)
     for i in similar_10_mobiles:
         recommended_mobiles.append(df1['name'].iloc[i[0]])
         recommended_mobiles_IMG.append(fetch_IMG(i[0]))
         recommended_mobiles_ratings.append(df1['ratings'].iloc[i[0]])
+        recommended_mobiles_operating_system_variety.append(df1['operating_system'].iloc[i[0]])
         recommended_mobiles_price.append(df1['price'].iloc[i[0]])
 
-    return recommended_mobiles, recommended_mobiles_IMG, recommended_mobiles_ratings, recommended_mobiles_price
+    return recommended_mobiles, recommended_mobiles_IMG, recommended_mobiles_ratings, recommended_mobiles_operating_system_variety, recommended_mobiles_price
 
 def show_recommendations2():
-
-    # Add custom CSS to control image size and row spacing
     st.markdown("""
         <style>
         .mobile-image {
@@ -190,13 +210,10 @@ def show_recommendations2():
     selected_mobile = st.selectbox(label='Select Mobile Name', options=mobiles)
 
     if st.button('Recommend'):
-        # Ensure the values are properly assigned
-        recommended_mobiles, mobile_IMG, mobiles_ratings, mobiles_price = recommend(selected_mobile)
+        recommended_mobiles, mobile_IMG, mobiles_ratings, recommended_mobiles_operating_system_variety, mobiles_price = recommend(selected_mobile)
 
-        # Clean the price by removing all non-numeric characters
         mobiles_price = [int(re.sub(r'[^\d]', '', str(price))) for price in mobiles_price]
 
-        # Check if recommended_mobiles has enough items to display
         if len(recommended_mobiles) >= 10:
             mobile_name = recommended_mobiles
         else:
@@ -213,15 +230,23 @@ def show_recommendations2():
 
         st.markdown('---')
 
-        mobile_name_variety, mobile_IMG_variety, mobiles_ratings_variety, mobiles_price_variety = recommend_different_variety(selected_mobile)
+        # Other varieties of mobiles
+        recommendations_variety = recommend_different_variety(selected_mobile)
+        
+        mobile_name_variety = recommendations_variety["names"]
+        mobile_IMG_variety = recommendations_variety["images"]
+        mobiles_ratings_variety = recommendations_variety["ratings"]
+        recommended_mobiles_operating_system_variety = recommendations_variety["operating_systems"]
+        mobiles_price_variety = recommendations_variety["prices"]
 
         st.markdown('## Other Variety of Mobiles')
         st.markdown('---')
 
-        # Clean the price by removing all non-numeric characters
-        mobiles_price_variety = [int(re.sub(r'[^\d]', '', str(price))) for price in mobiles_price_variety]
+        if 'mobiles_price_variety' not in locals():
+            mobiles_price_variety = [0] * len(mobile_name_variety)
+        else:
+            mobiles_price_variety = [int(re.sub(r'[^\d]', '', str(price))) for price in mobiles_price_variety]
 
-        # Create a grid layout for other varieties of mobiles
         num_cols = 5
         for i in range(0, len(mobile_name_variety), num_cols):
             cols = st.columns(num_cols)
@@ -232,58 +257,21 @@ def show_recommendations2():
                                     f'<img src="{mobile_IMG_variety[i + j]}" class="mobile-image">'
                                     f'<h3>{mobile_name_variety[i + j]}</h3>'
                                     f'<p>Ratings: {mobiles_ratings_variety[i + j]}</p>'
+                                    f'<p>Operating System: {recommended_mobiles_operating_system_variety[i + j]}</p>'
                                     f'<p>Price: LKR {mobiles_price_variety[i + j]}</p>'
                                     f'</div>', unsafe_allow_html=True)
 
-                        # Expandable section for more details directly under the mobile phone
                         row = df[df['name'] == mobile_name_variety[i + j]]
                         if not row.empty:
                             row = row.iloc[0]
                             if 'corpus' in row:
                                 with st.expander(f"View More Details for {row['name']}"):
                                     selected_mobile_row = df[df['name'] == row['name']].iloc[0]
-                                    
-                                    if 'corpus' in selected_mobile_row:
-                                        corpus_text = selected_mobile_row['corpus']
-                                        
-                                        # Extract features using the function
-                                        extracted_features = extract_features(corpus_text, adjusted_patterns)
-                                        
-                                        # Display the extracted features with appropriate icons
-                                        if extracted_features['RAM'] != "Not specified":
-                                            st.markdown(f"💾 **RAM:** {extracted_features['RAM']}")
-                                        if extracted_features['Storage'] != "Not specified":
-                                            st.markdown(f"💽 **Storage:** {extracted_features['Storage']}")
-                                        if extracted_features['Battery Capacity'] != "Not specified":
-                                            st.markdown(f"🔋 **Battery Capacity:** {extracted_features['Battery Capacity']}")
-                                        if extracted_features['Display Size'] != "Not specified":
-                                            st.markdown(f"📱 **Display Size:** {extracted_features['Display Size']}")
-                                        if extracted_features['Resolution'] != "Not specified":
-                                            st.markdown(f"🖥️ **Resolution:** {extracted_features['Resolution']}")
-                                        if extracted_features['Processor Type'] != "Not specified":
-                                            st.markdown(f"⚙️ **Processor Type:** {extracted_features['Processor Type']}")
-                                        if extracted_features['Processor Speed'] != "Not specified":
-                                            st.markdown(f"🚀 **Processor Speed:** {extracted_features['Processor Speed']} GHz")
-                                        if extracted_features['Camera'] != "Not specified":
-                                            st.markdown(f"📷 **Camera:** {extracted_features['Camera']}")
-                                        if extracted_features['Network'] != "Not specified":
-                                            st.markdown(f"📶 **Network:** {extracted_features['Network']}")
-                                        if extracted_features['Weight'] != "Not specified":
-                                            st.markdown(f"⚖️ **Weight:** {extracted_features['Weight']}")
-                                        if extracted_features['Dimensions'] != "Not specified":
-                                            st.markdown(f"📏 **Dimensions:** {extracted_features['Dimensions']}")
-                                        if extracted_features['Operating System'] != "Not specified":
-                                            st.markdown(f"🖥️ **Operating System:** {extracted_features['Operating System']}")
-
-                                    else:
-                                        st.write("No details available.")
                         else:
                             st.write("No details available.")
 
 def fetch_IMG(mobile_index):
-    # response = requests.get(url=df['imgURL'].iloc[mobile_index])
-    return df1['imgURL'].iloc[mobile_index] 
-                  
+    return df1['imgURL'].iloc[mobile_index]
 
 
 def show_recommendations():
@@ -308,29 +296,63 @@ def show_recommendations():
     st.header('Mobile Recommendations')
 
     # Filter by Brand
-    brand = st.selectbox('Select a Brand', df['brand'].unique())  # Ensure this matches your DataFrame's column name
+    brand = st.selectbox('Select a Brand', df['brand'].unique())
+
     # Filter by Storage
-    storage = st.selectbox('Select Storage Size', sorted(df['storage'].unique()))
+    storage = st.selectbox('Select Storage Size (GB)', sorted(df['storage'].unique()))
+
     # Filter by RAM
-    ram = st.selectbox('Select RAM Size', sorted(df['ram'].unique()))
+    ram = st.selectbox('Select RAM Size (GB)', sorted(df['ram'].unique()))
+
+    # Filter by Processor
+    processor = st.selectbox('Select Processor', sorted(df['processor'].unique()))
+
+    # Filter by Processor Speed
+    processor_speed = st.selectbox('Select Processor Speed (GHz)', sorted(df['processor_speed'].unique()))
+
+    # Filter by Battery Capacity
+    battery_capacity = st.slider('Select Battery Capacity (mAh)', 
+                                  min_value=int(df['battery_capacity'].min()), 
+                                  max_value=int(df['battery_capacity'].max()), 
+                                  value=(int(df['battery_capacity'].min()), int(df['battery_capacity'].max())), 
+                                  step=100)
+
+    # Filter by Display Size
+    display_size = st.selectbox('Select Display Size (cm)', sorted(df['display_size'].unique()))
+
+    # Filter by Camera Quality
+    camera_quality = st.selectbox('Select Camera Quality (MP)', sorted(df['camera'].unique()))
+
+    # Filter by Network Type
+    network = st.selectbox('Select Network Type', sorted(df['network'].unique()))
+
     # Filter by Price Range with sliders
     min_price, max_price = st.slider(
         'Select Price Range',
-        min_value=10000,
-        max_value=500000,
-        value=(10000, 500000),
+        min_value=int(df['price'].min()),
+        max_value=int(df['price'].max()),
+        value=(int(df['price'].min()), int(df['price'].max())),
         step=1000
     )
+
     # Add a button to trigger the recommendation display
     if st.button('Show Recommendations'):
-         # Apply filters
+        # Apply filters
         filtered_df = df[
             (df['brand'] == brand) &
             (df['storage'] == storage) &
             (df['ram'] == ram) &
+            (df['processor'] == processor) &
+            (df['processor_speed'] == processor_speed) &
+            (df['battery_capacity'] >= battery_capacity[0]) &
+            (df['battery_capacity'] <= battery_capacity[1]) &
+            (df['display_size'] == display_size) &
+            (df['camera'] == camera_quality) &
+            (df['network'] == network) &
             (df['price'] >= min_price) &
             (df['price'] <= max_price)
         ]
+
         # Handle fallback recommendations
         if filtered_df.empty:
             filtered_df = df[(df['brand'] == brand) & 
@@ -357,57 +379,25 @@ def show_recommendations():
                                     f'<img src="{row["imgURL"]}" class="mobile-image">'
                                     f'<h3>{row["name"]}</h3>'
                                     f'<p>Brand: {row["brand"]}</p>'
-                                    f'<p>Storage: {row["storage"]}GB</p>'
-                                    f'<p>RAM: {row["ram"]}GB</p>'
+                                    f'<p>Storage: {row["storage"]} GB</p>'
+                                    f'<p>RAM: {row["ram"]} GB</p>'
+                                    f'<p>Processor: {row["processor"]}</p>'
+                                    f'<p>Processor Speed: {row["processor_speed"]} GHz</p>'
+                                    f'<p>Battery: {row["battery_capacity"]} mAh</p>'
+                                    f'<p>Display Size: {row["display_size"]} inches</p>'
+                                    f'<p>Camera: {row["camera"]} MP</p>'
+                                    f'<p>Network: {row["network"]}</p>'
                                     f'<p>Price: LKR {row["price"]}</p>'
                                     f'</div>', unsafe_allow_html=True)
-                        
-                                              
-                        # Expandable section for more details
-                        if 'corpus' in row:
-                            with st.expander(f"View More Details for {row['name']}"):
-                                selected_mobile_row = df[df['name'] == row['name']].iloc[0]
-                                
-                                if 'corpus' in selected_mobile_row:
-                                    corpus_text = selected_mobile_row['corpus']
-                                    
-                                    # Extract features using the function
-                                    extracted_features = extract_features(corpus_text, adjusted_patterns)
-                                    
-                                   # Display the extracted features with appropriate icons
-                                    if extracted_features['RAM'] != "Not specified":
-                                        st.markdown(f"💾 **RAM:** {extracted_features['RAM']}")
-                                    if extracted_features['Storage'] != "Not specified":
-                                        st.markdown(f"💽 **Storage:** {extracted_features['Storage']}")
-                                    if extracted_features['Battery Capacity'] != "Not specified":
-                                        st.markdown(f"🔋 **Battery Capacity:** {extracted_features['Battery Capacity']}")
-                                    if extracted_features['Display Size'] != "Not specified":
-                                        st.markdown(f"📱 **Display Size:** {extracted_features['Display Size']}")
-                                    if extracted_features['Resolution'] != "Not specified":
-                                        st.markdown(f"🖥️ **Resolution:** {extracted_features['Resolution']}")
-                                    if extracted_features['Processor Type'] != "Not specified":
-                                        st.markdown(f"⚙️ **Processor Type:** {extracted_features['Processor Type']}")
-                                    if extracted_features['Processor Speed'] != "Not specified":
-                                        st.markdown(f"🚀 **Processor Speed:** {extracted_features['Processor Speed']} GHz")
-                                    if extracted_features['Camera'] != "Not specified":
-                                        st.markdown(f"📷 **Camera:** {extracted_features['Camera']}")
-                                    if extracted_features['Network'] != "Not specified":
-                                        st.markdown(f"📶 **Network:** {extracted_features['Network']}")
-                                    if extracted_features['Weight'] != "Not specified":
-                                        st.markdown(f"⚖️ **Weight:** {extracted_features['Weight']}")
-                                    if extracted_features['Dimensions'] != "Not specified":
-                                        st.markdown(f"📏 **Dimensions:** {extracted_features['Dimensions']}")
-                                    if extracted_features['Operating System'] != "Not specified":
-                                        st.markdown(f"🖥️ **Operating System:** {extracted_features['Operating System']}")
-
-                                    # Add more extracted features as needed
-
-                                else:
-                                    st.write("No details available.")
 
         # If there are no recommendations found
         if filtered_df.empty:
             st.write('No mobiles found with the selected criteria.')
+
+
+
+
+
 
 def show_visualizations():
     st.header('Visualizations')
