@@ -24,7 +24,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 st.set_page_config(layout="wide")
 
 # Load the dataset
-df = pd.read_csv('C:\\Users\\sandu\\OneDrive\\Desktop\\Mobile-Recommendation-System\\data\\mobile_processed_data.csv')
+df = pd.read_csv("C:\\Users\\Dilee\\mobile_processed_data.csv")
 
 
 df1 = pickle.load(file=open(file=r'src/model/dataframe.pkl', mode='rb'))
@@ -203,7 +203,7 @@ def show_recommendations2():
     """, unsafe_allow_html=True)
 
     st.title('Mobile Recommender System📲')
-    st.markdown('> ##### ***Guide***: Select a mobile phone of your choice from the available options...')
+    st.markdown('> ##### **Guide**: Select a mobile phone of your choice from the available options...')
     st.markdown('')
 
     mobiles = df1['name'].values
@@ -227,6 +227,15 @@ def show_recommendations2():
                                 f"Ratings: {mobiles_ratings[i]}  \n"
                                 f"Price: LKR {mobiles_price[i]}", unsafe_allow_html=True)
                     st.image(mobile_IMG[i])
+
+        for i in range(5, 10):
+            if i < len(mobile_name):
+                with eval(f'col{i-4}'):  # Reuse the columns in a new row
+                    st.markdown(f"<p style='text-align: center;'>{mobile_name[i]}\n"
+                                f"Ratings: {mobiles_ratings[i]}  \n"
+                                f"Price: LKR {mobiles_price[i]}", unsafe_allow_html=True)
+                    st.image(mobile_IMG[i])
+                    
 
         st.markdown('---')
 
@@ -384,7 +393,7 @@ def show_recommendations():
                                     f'<p>Processor: {row["processor"]}</p>'
                                     f'<p>Processor Speed: {row["processor_speed"]} GHz</p>'
                                     f'<p>Battery: {row["battery_capacity"]} mAh</p>'
-                                    f'<p>Display Size: {row["display_size"]} inches</p>'
+                                    f'<p>Display Size: {row["display_size"]} </p>'
                                     f'<p>Camera: {row["camera"]} MP</p>'
                                     f'<p>Network: {row["network"]}</p>'
                                     f'<p>Price: LKR {row["price"]}</p>'
