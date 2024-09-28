@@ -384,7 +384,7 @@ def show_recommendations():
                                     f'<p>Processor: {row["processor"]}</p>'
                                     f'<p>Processor Speed: {row["processor_speed"]} GHz</p>'
                                     f'<p>Battery: {row["battery_capacity"]} mAh</p>'
-                                    f'<p>Display Size: {row["display_size"]} inches</p>'
+                                    f'<p>Display Size: {row["display_size"]} </p>'
                                     f'<p>Camera: {row["camera"]} MP</p>'
                                     f'<p>Network: {row["network"]}</p>'
                                     f'<p>Price: LKR {row["price"]}</p>'
