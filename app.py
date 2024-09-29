@@ -134,7 +134,7 @@ def recommend_different_variety(mobile):
         recommended_mobiles_variety.append(df1['name'].iloc[i[0]])
         recommended_mobiles_IMG_variety.append(fetch_IMG(i[0]))
         recommended_mobiles_ratings_variety.append(df1['ratings'].iloc[i[0]])
-        recommended_mobiles_operating_system_variety.append(df1['operating_system'].iloc[i[0]])
+        recommended_mobiles_operating_system_variety.append(df1['system'].iloc[i[0]])
         recommended_mobiles_price_variety.append(df1['price'].iloc[i[0]])
 
         # Fetch additional specifications
@@ -172,17 +172,15 @@ def recommend(mobile):
     recommended_mobiles = []
     recommended_mobiles_IMG = []
     recommended_mobiles_ratings = []
-    recommended_mobiles_operating_system_variety = []
     recommended_mobiles_price = []
 
     for i in similar_10_mobiles:
         recommended_mobiles.append(df1['name'].iloc[i[0]])
         recommended_mobiles_IMG.append(fetch_IMG(i[0]))
         recommended_mobiles_ratings.append(df1['ratings'].iloc[i[0]])
-        recommended_mobiles_operating_system_variety.append(df1['operating_system'].iloc[i[0]])
         recommended_mobiles_price.append(df1['price'].iloc[i[0]])
 
-    return recommended_mobiles, recommended_mobiles_IMG, recommended_mobiles_ratings, recommended_mobiles_operating_system_variety, recommended_mobiles_price
+    return recommended_mobiles, recommended_mobiles_IMG, recommended_mobiles_ratings, recommended_mobiles_price
 
 def show_recommendations2():
     st.markdown("""
@@ -210,7 +208,7 @@ def show_recommendations2():
     selected_mobile = st.selectbox(label='Select Mobile Name', options=mobiles)
 
     if st.button('Recommend'):
-        recommended_mobiles, mobile_IMG, mobiles_ratings, recommended_mobiles_operating_system_variety, mobiles_price = recommend(selected_mobile)
+        recommended_mobiles, mobile_IMG, mobiles_ratings, mobiles_price = recommend(selected_mobile)
 
         mobiles_price = [int(re.sub(r'[^\d]', '', str(price))) for price in mobiles_price]
 
@@ -245,7 +243,7 @@ def show_recommendations2():
         mobile_name_variety = recommendations_variety["names"]
         mobile_IMG_variety = recommendations_variety["images"]
         mobiles_ratings_variety = recommendations_variety["ratings"]
-        recommended_mobiles_operating_system_variety = recommendations_variety["operating_systems"]
+        mobiles_operating_system_variety = recommendations_variety["operating_systems"]
         mobiles_price_variety = recommendations_variety["prices"]
         mobiles_storage_variety =recommendations_variety["storage"]
         mobiles_ram_variety =recommendations_variety["ram"]
@@ -274,7 +272,7 @@ def show_recommendations2():
                                     f'<img src="{mobile_IMG_variety[i + j]}" class="mobile-image">'
                                     f'<h3>{mobile_name_variety[i + j]}</h3>'
                                     f'<p>Ratings: {mobiles_ratings_variety[i + j]}</p>'
-                                    f'<p>Operating System: {recommended_mobiles_operating_system_variety[i + j]}</p>'
+                                    f'<p>Operating System: {mobiles_operating_system_variety[i + j]}</p>'
                                     f'<p>Price: LKR {mobiles_price_variety[i + j]}</p>'
                                     f'<p>Storage:  {mobiles_storage_variety[i + j]}</p>'
                                     f'<p>Ram: {mobiles_ram_variety[i + j]}</p>'
