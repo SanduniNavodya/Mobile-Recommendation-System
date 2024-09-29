@@ -247,6 +247,14 @@ def show_recommendations2():
         mobiles_ratings_variety = recommendations_variety["ratings"]
         recommended_mobiles_operating_system_variety = recommendations_variety["operating_systems"]
         mobiles_price_variety = recommendations_variety["prices"]
+        mobiles_storage_variety =recommendations_variety["storage"]
+        mobiles_ram_variety =recommendations_variety["ram"]
+        mobiles_processor_variety =recommendations_variety["processors"]
+        mobiles_processor_speed_variety =recommendations_variety["processor_speeds"]
+        mobiles_battery_capacity_variety =recommendations_variety["battery_capacities"]
+        mobiles_display_size_variety =recommendations_variety["display_sizes"]
+        mobiles_camera_variety =recommendations_variety["cameras"]
+        mobiles_network_variety =recommendations_variety["networks"]
 
         st.markdown('## Other Variety of Mobiles')
         st.markdown('---')
@@ -268,6 +276,14 @@ def show_recommendations2():
                                     f'<p>Ratings: {mobiles_ratings_variety[i + j]}</p>'
                                     f'<p>Operating System: {recommended_mobiles_operating_system_variety[i + j]}</p>'
                                     f'<p>Price: LKR {mobiles_price_variety[i + j]}</p>'
+                                    f'<p>Storage:  {mobiles_storage_variety[i + j]}</p>'
+                                    f'<p>Ram: {mobiles_ram_variety[i + j]}</p>'
+                                    f'<p>Processor:  {mobiles_processor_variety[i + j]}</p>'
+                                    f'<p>Processor Speed: {mobiles_processor_speed_variety[i + j]}</p>'
+                                    f'<p>Battery Capacity:  {mobiles_battery_capacity_variety[i + j]}</p>'
+                                    f'<p>Display Size: {mobiles_display_size_variety[i + j]}</p>'
+                                    f'<p>Camera:{mobiles_camera_variety[i + j]}</p>'
+                                    f'<p>Network:{mobiles_network_variety[i + j]}</p>'
                                     f'</div>', unsafe_allow_html=True)
 
                         row = df[df['name'] == mobile_name_variety[i + j]]
