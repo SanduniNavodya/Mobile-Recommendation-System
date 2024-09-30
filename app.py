@@ -24,14 +24,13 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 st.set_page_config(layout="wide")
 
 # Load the dataset
-df = pd.read_csv("C:\\Users\\Dilee\\mobile_processed_data.csv")
+df = pd.read_csv("data\\mobile_processed_data.csv")
 
 
 df1 = pickle.load(file=open(file=r'src/model/dataframe.pkl', mode='rb'))
 similarity = pickle.load(file=open(file=r'src/model/similarity.pkl', mode='rb'))
 
 remove()
-
 
 
 def main():
@@ -89,7 +88,6 @@ def show_home():
 
 
 
-
 # Function to recommend devices based on cosine similarity
 def recommend_different_variety(mobile):
     if mobile not in df1['name'].values:
@@ -98,7 +96,6 @@ def recommend_different_variety(mobile):
             "images": [""] * 10,
             "ratings": ["N/A"] * 10,
             "operating_systems": ["N/A"] * 10,
-            "prices": ["N/A"] * 10,
             "storage": ["N/A"] * 10,
             "ram": ["N/A"] * 10,
             "processors": ["N/A"] * 10,
@@ -106,7 +103,8 @@ def recommend_different_variety(mobile):
             "battery_capacities": ["N/A"] * 10,
             "display_sizes": ["N/A"] * 10,
             "cameras": ["N/A"] * 10,
-            "networks": ["N/A"] * 10
+            "networks": ["N/A"] * 10,
+            "prices": ["N/A"] * 10,
         }
 
     mobile_index = df1[df1['name'] == mobile].index[0]
@@ -120,7 +118,6 @@ def recommend_different_variety(mobile):
     recommended_mobiles_IMG_variety = []
     recommended_mobiles_ratings_variety = []
     recommended_mobiles_operating_system_variety = []
-    recommended_mobiles_price_variety = []
     recommended_mobiles_storage_variety = []
     recommended_mobiles_ram_variety = []
     recommended_mobiles_processor_variety = []
@@ -129,13 +126,13 @@ def recommend_different_variety(mobile):
     recommended_mobiles_display_size_variety = []
     recommended_mobiles_camera_variety = []
     recommended_mobiles_network_variety = []
+    recommended_mobiles_price_variety = []
 
     for i in different_variety:
         recommended_mobiles_variety.append(df1['name'].iloc[i[0]])
         recommended_mobiles_IMG_variety.append(fetch_IMG(i[0]))
         recommended_mobiles_ratings_variety.append(df1['ratings'].iloc[i[0]])
         recommended_mobiles_operating_system_variety.append(df1['system'].iloc[i[0]])
-        recommended_mobiles_price_variety.append(df1['price'].iloc[i[0]])
 
         # Fetch additional specifications
         recommended_mobiles_storage_variety.append(df1['storage'].iloc[i[0]])
@@ -146,13 +143,13 @@ def recommend_different_variety(mobile):
         recommended_mobiles_display_size_variety.append(df1['display_size'].iloc[i[0]])
         recommended_mobiles_camera_variety.append(df1['camera'].iloc[i[0]])
         recommended_mobiles_network_variety.append(df1['network'].iloc[i[0]])
+        recommended_mobiles_price_variety.append(df1['price'].iloc[i[0]])
 
     return {
         "names": recommended_mobiles_variety,
         "images": recommended_mobiles_IMG_variety,
         "ratings": recommended_mobiles_ratings_variety,
         "operating_systems": recommended_mobiles_operating_system_variety,
-        "prices": recommended_mobiles_price_variety,
         "storage": recommended_mobiles_storage_variety,
         "ram": recommended_mobiles_ram_variety,
         "processors": recommended_mobiles_processor_variety,
@@ -160,11 +157,12 @@ def recommend_different_variety(mobile):
         "battery_capacities": recommended_mobiles_battery_capacity_variety,
         "display_sizes": recommended_mobiles_display_size_variety,
         "cameras": recommended_mobiles_camera_variety,
-        "networks": recommended_mobiles_network_variety
+        "networks": recommended_mobiles_network_variety,
+        "prices": recommended_mobiles_price_variety,
     }
 
 def recommend(mobile):
-    mobile_index = df1[df1['name'] == mobile].index[0]
+    mobile_index = df[df['name'] == mobile].index[0]
     similarity_array = similarity[mobile_index]
 
     similar_10_mobiles = sorted(list(enumerate(similarity_array)), reverse=True, key=lambda x: x[1])[1:11]
@@ -175,10 +173,10 @@ def recommend(mobile):
     recommended_mobiles_price = []
 
     for i in similar_10_mobiles:
-        recommended_mobiles.append(df1['name'].iloc[i[0]])
+        recommended_mobiles.append(df['name'].iloc[i[0]])
         recommended_mobiles_IMG.append(fetch_IMG(i[0]))
-        recommended_mobiles_ratings.append(df1['ratings'].iloc[i[0]])
-        recommended_mobiles_price.append(df1['price'].iloc[i[0]])
+        recommended_mobiles_ratings.append(df['ratings'].iloc[i[0]])
+        recommended_mobiles_price.append(df['price'].iloc[i[0]])
 
     return recommended_mobiles, recommended_mobiles_IMG, recommended_mobiles_ratings, recommended_mobiles_price
 
@@ -273,7 +271,6 @@ def show_recommendations2():
                                     f'<h3>{mobile_name_variety[i + j]}</h3>'
                                     f'<p>Ratings: {mobiles_ratings_variety[i + j]}</p>'
                                     f'<p>Operating System: {mobiles_operating_system_variety[i + j]}</p>'
-                                    f'<p>Price: LKR {mobiles_price_variety[i + j]}</p>'
                                     f'<p>Storage:  {mobiles_storage_variety[i + j]}</p>'
                                     f'<p>Ram: {mobiles_ram_variety[i + j]}</p>'
                                     f'<p>Processor:  {mobiles_processor_variety[i + j]}</p>'
@@ -282,6 +279,7 @@ def show_recommendations2():
                                     f'<p>Display Size: {mobiles_display_size_variety[i + j]}</p>'
                                     f'<p>Camera:{mobiles_camera_variety[i + j]}</p>'
                                     f'<p>Network:{mobiles_network_variety[i + j]}</p>'
+                                    f'<p>Price: LKR {mobiles_price_variety[i + j]}</p>'
                                     f'</div>', unsafe_allow_html=True)
 
                         row = df[df['name'] == mobile_name_variety[i + j]]
