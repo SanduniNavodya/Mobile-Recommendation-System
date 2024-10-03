@@ -215,23 +215,18 @@ def show_recommendations2():
         else:
             mobile_name = ["N/A"] * 10  # Default if not enough recommendations
 
-        col1, col2, col3, col4, col5 = st.columns(5)
-        for i in range(5):
-            if i < len(mobile_name):
-                with eval(f'col{i+1}'):
-                    st.markdown(f"<p style='text-align: center;'>{mobile_name[i]}\n"
-                                f"Ratings: {mobiles_ratings[i]}  \n"
-                                f"Price: LKR {mobiles_price[i]}", unsafe_allow_html=True)
-                    st.image(mobile_IMG[i])
-
-        for i in range(5, 10):
-            if i < len(mobile_name):
-                with eval(f'col{i-4}'):  # Reuse the columns in a new row
-                    st.markdown(f"<p style='text-align: center;'>{mobile_name[i]}\n"
-                                f"Ratings: {mobiles_ratings[i]}  \n"
-                                f"Price: LKR {mobiles_price[i]}", unsafe_allow_html=True)
-                    st.image(mobile_IMG[i])
-                    
+        num_cols = 5
+        for i in range(0, len(mobile_name), num_cols):
+            cols = st.columns(num_cols)
+            for j in range(num_cols):
+                if i + j < len(mobile_name):
+                    with cols[j]:
+                        st.markdown(f'<div class="recommendation-item">'
+                                    f'<img src="{mobile_IMG[i + j]}" class="mobile-image">'
+                                    f'<h3>{mobile_name[i + j]}</h3>'
+                                    f'<p>Ratings: {mobiles_ratings[i + j]}</p>'
+                                    f'<p>Price: LKR {mobiles_price[i + j]}</p>'
+                                    f'</div>', unsafe_allow_html=True)
 
         st.markdown('---')
 
@@ -384,6 +379,8 @@ def show_recommendations():
             filtered_df = df[(df['brand'] == brand) & 
                              (df['price'] >= min_price) & 
                              (df['price'] <= max_price)]
+        
+        filtered_df = filtered_df.head(20)
 
         # Display Recommendations as a Grid
         num_cols = 4
