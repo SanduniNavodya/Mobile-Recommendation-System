@@ -24,7 +24,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 st.set_page_config(layout="wide")
 
 # Load the dataset
-df = pd.read_csv('C:\\Users\\sandu\\OneDrive\\Desktop\\Mobile-Recommendation-System\\data\\mobile_processed_data.csv')
+df = pd.read_csv('/Users/praveen/Desktop/Mobile-Recommendation-System/data/mobile_processed_data.csv')
 
 
 df1 = pickle.load(file=open(file=r'src/model/dataframe.pkl', mode='rb'))
