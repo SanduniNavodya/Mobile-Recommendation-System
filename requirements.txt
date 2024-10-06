@@ -11,6 +11,6 @@ seaborn
 requests
 transformers
 tf-keras
-
+tensorflow
 
 
