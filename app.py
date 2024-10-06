@@ -79,10 +79,6 @@ def show_home():
 
     # Adding a section with a call to action
     st.markdown("<p style='text-align: center; font-size: 18px;'>Let us guide you through our vast selection of mobile phones tailored to your needs. Whether you’re looking for the latest flagship model or a budget-friendly option, we've got you covered!</p>", unsafe_allow_html=True)
-
-    # Adding a button to explore more
-    if st.button("Start Exploring"):
-        st.write("Navigate to the explore section to browse the latest mobiles!")
     
     # Adding some space
     st.write("\n\n")
@@ -442,32 +438,32 @@ def show_visualizations():
     ax.tick_params(axis='both', colors='white')
     st.pyplot(fig)
 
-    # Price vs Ratings
-    st.subheader('Price vs Ratings')
-    fig, ax = plt.subplots(figsize=(10, 6))
-    scatter = sns.scatterplot(data=df, x='price', y='ratings', hue='brand', palette='pastel', ax=ax)
-    ax.set_title('Price vs Ratings', fontsize=16, color='white')
-    ax.set_xlabel('Price', fontsize=14, color='white')
-    ax.set_ylabel('Ratings', fontsize=14, color='white')
+    # # Price vs Ratings
+    # st.subheader('Price vs Ratings')
+    # fig, ax = plt.subplots(figsize=(10, 6))
+    # scatter = sns.scatterplot(data=df, x='price', y='ratings', hue='brand', palette='pastel', ax=ax)
+    # ax.set_title('Price vs Ratings', fontsize=16, color='white')
+    # ax.set_xlabel('Price', fontsize=14, color='white')
+    # ax.set_ylabel('Ratings', fontsize=14, color='white')
 
-    # Add legend to the scatter plot with white background
-    handles, labels = scatter.get_legend_handles_labels()
-    ax.legend(handles, labels, title="Brands", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1), fontsize=12, title_fontsize='13', facecolor='white', frameon=True)
+    # # Add legend to the scatter plot with white background
+    # handles, labels = scatter.get_legend_handles_labels()
+    # ax.legend(handles, labels, title="Brands", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1), fontsize=12, title_fontsize='13', facecolor='white', frameon=True)
 
-    # Remove background color and set border color
-    ax.set_facecolor('none')
-    fig.patch.set_alpha(0.0)
-    ax.spines['top'].set_edgecolor('white')
-    ax.spines['right'].set_edgecolor('white')
-    ax.spines['left'].set_edgecolor('white')
-    ax.spines['bottom'].set_edgecolor('white')
-    ax.tick_params(axis='both', colors='white')
-    st.pyplot(fig)
+    # # Remove background color and set border color
+    # ax.set_facecolor('none')
+    # fig.patch.set_alpha(0.0)
+    # ax.spines['top'].set_edgecolor('white')
+    # ax.spines['right'].set_edgecolor('white')
+    # ax.spines['left'].set_edgecolor('white')
+    # ax.spines['bottom'].set_edgecolor('white')
+    # ax.tick_params(axis='both', colors='white')
+    # st.pyplot(fig)
 
     # Improved Brand Distribution Pie Chart
     st.subheader('Brand Distribution')
     fig, ax = plt.subplots(figsize=(10, 7))
-    brand_counts = df['brand'].value_counts()
+    brand_counts = df1['brand'].value_counts()
 
     # Use a color palette
     colors = sns.color_palette("pastel")[0:len(brand_counts)]
