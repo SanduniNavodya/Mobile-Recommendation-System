@@ -89,6 +89,7 @@ If you wish to run the project locally, follow these steps:
     ```bash
     streamlit run app.py
     ```
+---
 
 ## Technologies Used
 - **Python**
