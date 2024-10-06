@@ -11,6 +11,11 @@ import os
 import pickle
 import re
 
+# Get the absolute path to the current directory and data file
+current_dir = os.path.dirname(os.path.abspath(__file__))
+data_file = os.path.join(current_dir, 'data', 'mobile_processed_data.csv')
+
+# Add src path to sys
 sys.path.append(os.path.abspath('src'))
 from remove_ import remove
 
@@ -24,8 +29,7 @@ warnings.filterwarnings('ignore', category=DeprecationWarning)
 st.set_page_config(layout="wide")
 
 # Load the dataset
-df = pd.read_csv("data\\mobile_processed_data.csv")
-
+df = pd.read_csv(data_file)
 
 df1 = pickle.load(file=open(file=r'src/model/dataframe.pkl', mode='rb'))
 similarity = pickle.load(file=open(file=r'src/model/similarity.pkl', mode='rb'))
